@@ -1,0 +1,26 @@
+[
+    {
+        "id": "20251124181651",
+        "date": "2025-11-24 18:16",
+        "text": "car has been stolen in the Mysore city",
+        "section": "BNS Section 303 (Theft)",
+        "lat": 12.3508111,
+        "lon": 76.6123884
+    },
+    {
+        "id": "20251124182051",
+        "date": "2025-11-24 18:20",
+        "text": "golden chain has stollen in mysore",
+        "section": "BNS Section 304 (Snatching)",
+        "lat": 12.3508111,
+        "lon": 76.6123884
+    },
+    {
+        "id": "20251125154143",
+        "date": "2025-11-25 15:41",
+        "text": "a car has stollen in mysore city",
+        "section": "BNS Section 126 (Wrongful Restraint)",
+        "lat": 12.9564672,
+        "lon": 77.6208384
+    }
+]

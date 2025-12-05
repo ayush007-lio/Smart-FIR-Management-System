@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart-FIR Official System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <style>
+        :root {
+            --police-dark: #0a192f; /* Deep Navy */
+            --police-blue: #112240; /* Lighter Navy */
+            --police-gold: #c5a059; /* Official Gold */
+            --text-light: #ccd6f6;
+        }
+        
+        body {
+            background-color: #f0f2f5;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        /* Navbar Styling */
+        .navbar {
+            background-color: var(--police-dark);
+            border-bottom: 3px solid var(--police-gold);
+        }
+        .navbar-brand {
+            color: var(--police-gold) !important;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+        
+        /* Card Styling */
+        .card {
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            background: white;
+        }
+        .card-header-police {
+            background-color: var(--police-blue);
+            color: white;
+            border-bottom: 2px solid var(--police-gold);
+            padding: 15px;
+            border-radius: 8px 8px 0 0;
+        }
+
+        /* Buttons */
+        .btn-police {
+            background-color: var(--police-dark);
+            color: var(--police-gold);
+            border: 1px solid var(--police-gold);
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .btn-police:hover {
+            background-color: var(--police-gold);
+            color: var(--police-dark);
+        }
+
+        h1, h2, h3, h4 { color: var(--police-dark); font-weight: 700; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark shadow sticky-top">
+    <div class="container">
+        <a class="navbar-brand" href="/">
+            <i class="fas fa-shield-alt me-2"></i> Smart-FIR AI
+        </a>
+        <div class="d-flex">
+            <a href="/" class="btn btn-sm btn-outline-warning">
+                <i class="fas fa-home"></i> Home
+            </a>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-5 mb-5">
+    {% block content %}{% endblock %}
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+{% block scripts %}{% endblock %}
+
+</body>
+</html>

@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row">
+    <div class="col-md-5">
+        <div class="card h-100">
+            <div class="card-header-police">
+                <h5 class="mb-0"><i class="fas fa-edit"></i> New Incident Report</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span id="locStatus" class="badge bg-warning text-dark">
+                        <i class="fas fa-satellite-dish"></i> GPS: Locating...
+                    </span>
+                    <small class="text-muted" id="timestamp">--:--</small>
+                </div>
+
+                <button id="micBtn" class="btn btn-outline-danger w-100 mb-3 py-2" onclick="toggleMic()">
+                    <i class="fas fa-microphone"></i> Start Voice Input
+                </button>
+
+                <textarea id="desc" class="form-control mb-3" rows="6" 
+                    placeholder="Describe the incident here (Speech or Text)..."></textarea>
+                
+                <div class="d-flex gap-2">
+                    <button class="btn btn-police flex-grow-1" onclick="analyzeAndSave()">
+                        <i class="fas fa-bolt"></i> Analyze & Save
+                    </button>
+                    <button class="btn btn-light border" onclick="resetForm()">
+                        <i class="fas fa-undo"></i> Reset
+                    </button>
+                </div>
+
+                <div id="resultBox" class="alert alert-success mt-3 border-0" style="display:none; background-color: #d1e7dd;">
+                    <h6 class="text-success fw-bold">Recommended Action:</h6>
+                    <h4 id="bnsSection" class="fw-bold text-dark">...</h4>
+                    <hr>
+                    <small><i class="fas fa-map-pin"></i> Location Tagged: <span id="savedLoc"></span></small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-7">
+        <div class="card h-100">
+            <div class="card-body p-1">
+                <div id="map" style="height: 550px; width: 100%; border-radius: 4px;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // --- 1. MAP SETUP ---
+    let map = L.map('map').setView([20.59, 78.96], 5);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    let currentLat = null, currentLon = null;
+    let userMarker = null;
+
+    // --- 2. GPS LOGIC ---
+    function updateLocation() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(position => {
+                currentLat = position.coords.latitude;
+                currentLon = position.coords.longitude;
+                
+                // Update UI Status
+                const status = document.getElementById('locStatus');
+                status.innerText = "GPS Active";
+                status.className = "badge bg-success";
+                document.getElementById('timestamp').innerText = new Date().toLocaleTimeString();
+
+                // Update Map View
+                if (userMarker) map.removeLayer(userMarker);
+                userMarker = L.marker([currentLat, currentLon]).addTo(map)
+                    .bindPopup("<b>Officer Location</b>").openPopup();
+                map.setView([currentLat, currentLon], 15);
+
+            }, (err) => {
+                console.error(err);
+                document.getElementById('locStatus').innerText = "GPS Error";
+                document.getElementById('locStatus').className = "badge bg-danger";
+            });
+        } else {
+            alert("Geolocation is not supported by this browser.");
+        }
+    }
+
+    // Run GPS on Load
+    updateLocation();
+
+    // --- 3. VOICE INPUT ---
+    function toggleMic() {
+        if (!('webkitSpeechRecognition' in window)) { 
+            alert("Voice input requires Google Chrome or Edge."); 
+            return; 
+        }
+        const recognition = new webkitSpeechRecognition();
+        recognition.lang = 'en-IN'; // Indian English
+        const btn = document.getElementById('micBtn');
+        
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Listening...';
+        btn.classList.replace('btn-outline-danger', 'btn-danger');
+        
+        recognition.start();
+        
+        recognition.onresult = (e) => {
+            const transcript = e.results[0][0].transcript;
+            const textArea = document.getElementById('desc');
+            textArea.value += (textArea.value.length > 0 ? " " : "") + transcript;
+            stopMicUI();
+        };
+
+        recognition.onerror = () => stopMicUI();
+        recognition.onend = () => stopMicUI();
+
+        function stopMicUI() {
+            btn.innerHTML = '<i class="fas fa-microphone"></i> Start Voice Input';
+            btn.classList.replace('btn-danger', 'btn-outline-danger');
+        }
+    }
+
+    // --- 4. ANALYZE (SAVE DATA) ---
+    async function analyzeAndSave() {
+        const text = document.getElementById('desc').value;
+        if (!text) { alert("Please enter incident details."); return; }
+        
+        // Refresh location before sending to ensure accuracy
+        if (!currentLat) { alert("Waiting for GPS location..."); updateLocation(); return; }
+
+        const res = await fetch('/analyze', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({text: text, lat: currentLat, lon: currentLon})
+        });
+
+        const data = await res.json();
+        
+        // Display Results (Do not clear text area as per requirement)
+        const resBox = document.getElementById('resultBox');
+        resBox.style.display = 'block';
+        document.getElementById('bnsSection').innerText = data.section;
+        document.getElementById('savedLoc').innerText = `${data.lat.toFixed(5)}, ${data.lon.toFixed(5)}`;
+        
+        // Drop a Red Pin on the map for the saved incident
+        L.circleMarker([currentLat, currentLon], {
+            color: 'red', fillColor: '#f03', fillOpacity: 0.8, radius: 10
+        }).addTo(map).bindPopup(`<b>Incident Logged:</b><br>${data.section}`);
+    }
+
+    // --- 5. RESET FORM ---
+    function resetForm() {
+        document.getElementById('desc').value = "";
+        document.getElementById('resultBox').style.display = 'none';
+        updateLocation(); // Re-center map
+    }
+</script>
+{% endblock %}

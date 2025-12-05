@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-0 text-police">HQ Command Center</h2>
+        <p class="text-muted">Real-time Incident Monitoring</p>
+    </div>
+    <a href="/download_pdf" class="btn btn-success shadow px-4">
+        <i class="fas fa-file-pdf me-2"></i> Download Official Report
+    </a>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card bg-primary text-white p-4 text-center h-100 shadow-sm" style="background: linear-gradient(45deg, #0a192f, #112240);">
+            <h1 class="display-4 fw-bold text-warning">{{ total }}</h1>
+            <p class="lead mb-0">Total Incidents Logged</p>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="card p-2 h-100 shadow-sm">
+            <div id="adminMap" style="height: 100%; min-height: 250px; width: 100%;"></div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-header-police">
+        <h5 class="mb-0"><i class="fas fa-list"></i> Incident Database</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover mb-0 align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th class="ps-4">Date & Time</th>
+                        <th>Recommended Law</th>
+                        <th>Incident Summary</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for case in cases %}
+                    <tr>
+                        <td class="ps-4">{{ case.date }}</td>
+                        <td>
+                            <span class="badge bg-warning text-dark border border-dark">
+                                {{ case.section }}
+                            </span>
+                        </td>
+                        <td><small class="text-muted">{{ case.text[:60] }}...</small></td>
+                        <td>
+                            <a href="https://www.google.com/maps?q={{case.lat}},{{case.lon}}" 
+                               target="_blank" 
+                               class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-map-marker-alt"></i> View Loc
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Initialize Admin Map
+    let map = L.map('adminMap').setView([20.59, 78.96], 5);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+    // Load Case Pins
+    const cases = {{ cases | tojson }};
+    cases.forEach(c => {
+        if(c.lat && c.lon) {
+            L.circleMarker([c.lat, c.lon], {
+                color: 'red', fillColor: '#f03', fillOpacity: 0.5, radius: 8
+            }).addTo(map)
+            .bindPopup(`<b>${c.section}</b><br>${c.date}`);
+        }
+    });
+</script>
+{% endblock %}
