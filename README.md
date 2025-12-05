@@ -88,6 +88,6 @@ This project is updated to reflect the new **Bharatiya Nyaya Sanhita (BNS)** cri
 ---
 
 ## 👥 Contributors
-* **[Your Name]** - *Lead Developer*
+* **Ayush S** - *Lead Developer*
 
 ---
