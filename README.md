@@ -73,10 +73,8 @@ The system utilizes a **Content-Based Filtering** approach:
 ---
 
 ## 📸 Screenshots
-*(Add your screenshots here after running the project)*
-* *Landing Page*
-* *Officer Dashboard with Voice Input*
-* *Admin Map View*
+<img width="1370" height="744" alt="Screenshot (73)" src="https://github.com/user-attachments/assets/c5646017-1a28-44dc-88f7-8a07156e2959" />
+<img width="1752" height="776" alt="Screenshot (74)" src="https://github.com/user-attachments/assets/08212486-4d96-493f-8596-f19578cb347e" />
 
 ---
 
